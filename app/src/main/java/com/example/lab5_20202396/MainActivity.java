@@ -5,10 +5,11 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
-import android.view.View;
+import android.util.Log;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,11 +86,23 @@ public class MainActivity extends AppCompatActivity {
         });
 
         viewMedicationsButton.setOnClickListener(v -> {
-            // TODO: Implement medication list activity
+            try {
+                Intent intent = new Intent(this, MedicationListActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.e("MainActivity", "Error launching MedicationListActivity", e);
+                Toast.makeText(this, "Error al abrir la lista de medicamentos", Toast.LENGTH_SHORT).show();
+            }
         });
 
         settingsButton.setOnClickListener(v -> {
-            // TODO: Implement settings activity
+            try {
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+            } catch (Exception e) {
+                Log.e("MainActivity", "Error launching SettingsActivity", e);
+                Toast.makeText(this, "Error al abrir la configuración", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

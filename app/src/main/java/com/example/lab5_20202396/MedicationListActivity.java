@@ -26,10 +26,12 @@ public class MedicationListActivity extends AppCompatActivity {
     private MedicationAdapter medicationAdapter;
     private MedicationViewModel medicationViewModel;
     private FloatingActionButton addMedicationFab;
+    private TextView emptyListText;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d(TAG, "onCreate started");
         setContentView(R.layout.activity_medication_list);
 
         try {
@@ -37,6 +39,7 @@ public class MedicationListActivity extends AppCompatActivity {
             setupRecyclerView();
             setupViewModel();
             setupFab();
+            Log.d(TAG, "onCreate completed successfully");
         } catch (Exception e) {
             Log.e(TAG, "Error in onCreate", e);
             Toast.makeText(this, "Error al cargar la lista de medicamentos", Toast.LENGTH_SHORT).show();
@@ -44,8 +47,20 @@ public class MedicationListActivity extends AppCompatActivity {
     }
 
     private void initializeViews() {
+        Log.d(TAG, "Initializing views");
         medicationsRecyclerView = findViewById(R.id.medicationsRecyclerView);
         addMedicationFab = findViewById(R.id.addMedicationFab);
+        emptyListText = findViewById(R.id.emptyListText);
+        if (medicationsRecyclerView == null) {
+            throw new IllegalStateException("RecyclerView not found");
+        }
+        if (addMedicationFab == null) {
+            throw new IllegalStateException("FAB not found");
+        }
+        if (emptyListText == null) {
+            throw new IllegalStateException("Empty list text not found");
+        }
+        Log.d(TAG, "Views initialized successfully");
     }
 
     private void setupRecyclerView() {
@@ -55,19 +70,32 @@ public class MedicationListActivity extends AppCompatActivity {
     }
 
     private void setupViewModel() {
+        Log.d(TAG, "Setting up ViewModel");
         try {
             medicationViewModel = new ViewModelProvider(this).get(MedicationViewModel.class);
             medicationViewModel.getAllMedications().observe(this, medications -> {
+                Log.d(TAG, "Received medications update: " + (medications != null ? medications.size() : "null"));
                 if (medications != null) {
                     medicationAdapter.setMedications(medications);
-                    Log.d(TAG, "Medications loaded: " + medications.size());
+                    if (medications.isEmpty()) {
+                        emptyListText.setVisibility(View.VISIBLE);
+                        medicationsRecyclerView.setVisibility(View.GONE);
+                    } else {
+                        emptyListText.setVisibility(View.GONE);
+                        medicationsRecyclerView.setVisibility(View.VISIBLE);
+                    }
                 } else {
                     Log.w(TAG, "Medications list is null");
+                    Toast.makeText(this, "No hay medicamentos para mostrar", Toast.LENGTH_SHORT).show();
+                    emptyListText.setVisibility(View.VISIBLE);
+                    medicationsRecyclerView.setVisibility(View.GONE);
                 }
             });
+            Log.d(TAG, "ViewModel setup completed");
         } catch (Exception e) {
             Log.e(TAG, "Error setting up ViewModel", e);
             Toast.makeText(this, "Error al cargar los medicamentos", Toast.LENGTH_SHORT).show();
+            throw e;
         }
     }
 
